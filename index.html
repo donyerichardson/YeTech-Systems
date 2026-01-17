@@ -391,9 +391,17 @@ background: linear-gradient(180deg, white, #f0e8ee);
 }
 
 .services-title {
-  font-size: 32px;
-  margin-bottom: 50px;
+    font-size: 32px;
   color: #222;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.services h5 {
+    margin: 5px 0;        /* reduce spacing between h5 elements */
+    text-align: center;    /* optional: center text */
+    font-weight: normal;   /* optional: lighter look */
+    color: #fff;           /* optional: match your background */
 }
 
 .services-grid {
@@ -1020,6 +1028,27 @@ background: linear-gradient(180deg, white, #f0e8ee);
 
     </style>
 </head>
+<footer style="text-align:center; padding:20px; font-size:12px; color:#aaa;">
+    <span id="adminTrigger" style="cursor:pointer;">© Ye'Tech Systems</span>
+</footer>
+
+<!-- Admin Login Modal -->
+<div id="adminModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:9999;">
+    <div style="background:#111; color:#fff; max-width:320px; margin:10% auto; padding:25px; border-radius:12px;">
+        <h3 style="margin-bottom:15px;">Admin Login</h3>
+
+        <input id="adminEmail" type="email" placeholder="Email"
+               style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:none;">
+
+        <input id="adminPassword" type="password" placeholder="Password"
+               style="width:100%; padding:10px; margin-bottom:15px; border-radius:8px; border:none;">
+
+        <button onclick="adminLogin()" style="width:100%; padding:12px; border:none; border-radius:8px; background:#5d9cff; font-weight:bold;">
+            Login
+        </button>
+    </div>
+</div>
+
 <body>
 <div id="overlay" onclick="startExperience()">
     <h2 style="margin-bottom: 10px; text-align: center;">
@@ -1145,6 +1174,7 @@ background: linear-gradient(180deg, white, #f0e8ee);
 <section class="section services" id="services">
     <h2 class="services-title">Our Services</h2>
     <h5>** All ecommerce/login systems will have a shopify backend</h5>
+    <h5>A 50% upfront deposit is necessary to initiate coding.</h5>
 
     <div class="services-grid">
 
@@ -1313,7 +1343,87 @@ background: linear-gradient(180deg, white, #f0e8ee);
 
 
 
+
 <h6>Created by Ye'Tech Systems™️</h6>
+<script>
+if (!sessionStorage.getItem("tracked")) {
+  sessionStorage.setItem("tracked", "true");
+
+  fetch("https://ipapi.co/json/")
+    .then(res => res.json())
+    .then(geo => {
+      supabaseClient.from("page_views").insert({
+        page: window.location.pathname,
+        country: geo.country_name,
+        state: geo.region,
+        city: geo.city,
+        ip: geo.ip
+      });
+    });
+}
+</script>
+
+<script>
+async function trackVisit() {
+  const res = await fetch("https://ipapi.co/json/");
+  const geo = await res.json();
+
+  await supabaseClient.from("page_views").insert({
+    page: window.location.pathname,
+    country: geo.country_name,
+    state: geo.region,
+    city: geo.city,
+    ip: geo.ip
+  });
+}
+
+trackVisit();
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const { createClient } = window.supabase;
+
+  const supabaseClient = createClient(
+    "https://qtsdprrxuvzfpgitnspj.supabase.co",
+    "sb_publishable_gptSk1afRO-l7J1YcvDgSg_tdUX9zv9"
+  );
+
+  document.getElementById("adminTrigger").onclick = () => {
+    document.getElementById("adminModal").style.display = "block";
+  };
+
+  async function adminLogin() {
+    const email = document.getElementById("adminEmail").value;
+    const password = document.getElementById("adminPassword").value;
+
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) {
+      alert("Access denied");
+      return;
+    }
+    if (data.user.email !== "yetechsystems@gmail.com") {
+  await supabaseClient.auth.signOut();
+  alert("Unauthorized access");
+  return;
+}
+
+
+    // ✅ LINK TO ADMIN PAGE
+    window.location.href = "admin.html";
+  }
+</script>
+<script src="https://unpkg.com/globe.gl"></script>
+<div id="globe" style="width:600px; height:600px;"></div>
+
+
+
 
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 
@@ -1713,7 +1823,12 @@ window.addEventListener("scroll", () => {
 
 
 
+
+
+
+
 </script>
+
 
 
 </body>
